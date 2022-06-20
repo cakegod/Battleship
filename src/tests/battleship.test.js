@@ -1,4 +1,6 @@
-import { ship, gameBoard } from '../index';
+/* eslint-disable no-undef */
+import { ship } from '../modules/ship';
+import { gameBoard } from '../modules/gameboard';
 
 const shipName = { length: 3, name: 'testerino' };
 const testShip = ship(shipName);
@@ -19,10 +21,17 @@ describe('SHIP', () => {
 describe('GAMEBOARD', () => {
 	const testBoard = gameBoard();
 	testBoard.placeShip(shipName, 'horizontal', 2, 2);
-	test('places a ship in specific coordinates', () => {
-		expect(testBoard.boardArray[3][2]).not.toBe("");
+	test('can place a ship in specific coordinates', () => {
+		expect(testBoard.showArray(2, 2)).not.toBe("");
 	});
+	test('cannot place a ship over the board', () => {
+		expect(testBoard.showArray(6, 5)).toBe("")
+	})
+	test.todo('cannot place a ship over another ship coordinates')
 	test('can hit a ship with specific coordinates', () => {
 		expect(testBoard.receiveAttack(2, 2)).toBe("damaged")
+	})
+	test('can miss a hit', () => {
+		expect(testBoard.receiveAttack(5, 5)).toBe(1)
 	})
 });
