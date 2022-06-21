@@ -1,9 +1,10 @@
-export const ship = ({ length, name }) => {
+export const Ship = ({ length, name }) => {
 	const shipName = name;
+	const shipLength = length
 	const health = Array(length).fill('hitpoint');
 	const hit = () => (health[health.indexOf('hitpoint')] = 'damaged');
 	const isSunk = () => !health.includes('hitpoint');
-	return { ship, hit, isSunk };
+	return { name, length, hit, isSunk };
 };
 
-export default ship
+export default Ship

@@ -1,16 +1,16 @@
-import { ship } from "./ship";
+import { Ship } from "./ship";
 
 export const gameBoard = () => {
-  const boardArray = new Array(10);
+  const board = new Array(10);
   for (let i = 0; i < 10; i += 1) {
-    boardArray[i] = new Array(10).fill("");
+    board[i] = new Array(10).fill("");
   }
 
-  const carrier = ship({ length: 1, name: "carrier" });
-  const battleship = ship({ length: 1, name: "battleship" });
-  const destroyer = ship({ length: 1, name: "destroyer" });
-  const submarine = ship({ length: 1, name: "submarine" });
-  const patrolBoat = ship({ length: 1, name: "patrol boat" });
+  const carrier = Ship({ length: 5, name: "carrier" });
+  const battleship = Ship({ length: 4, name: "battleship" });
+  const destroyer = Ship({ length: 4, name: "destroyer" });
+  const submarine = Ship({ length: 3, name: "submarine" });
+  const patrolBoat = Ship({ length: 2, name: "patrol boat" });
 
   const isShipFit = (length, direction, x, y) => {
     switch (direction) {
@@ -26,13 +26,13 @@ export const gameBoard = () => {
     let empty = true;
     if (direction === "horizontal") {
       for (let i = x; i <= x + length - 1; i += 1) {
-        if (boardArray[i][y] !== "") {
+        if (board[i][y] !== "") {
           empty = false;
         }
       }
     } else if (direction === "vertical") {
       for (let i = y; i <= y + length - 1; i += 1) {
-        if (boardArray[x][i] !== "") {
+        if (board[x][i] !== "") {
           empty = false;
         }
       }
@@ -41,19 +41,22 @@ export const gameBoard = () => {
   };
 
   const placeShip = (shipName, direction, x, y) => {
+    // Check if the ship fits on the board
     if (!isShipFit(shipName.length, direction, x, y)) {
       return "ship does not fit";
     }
+    // Check if place is empty
     if (!isPlaceEmpty(shipName.length, direction, x, y)) {
       return "place is not empty";
     }
+    // Place the ship
     if (direction === "horizontal") {
       for (let i = x; i <= x + shipName.length - 1; i += 1) {
-        boardArray[i][y] = ship(shipName);
+        board[i][y] = Ship(shipName);
       }
     } else if (direction === "vertical") {
       for (let i = y; i <= y + shipName.length - 1; i += 1) {
-        boardArray[x][i] = ship(shipName);
+        board[x][i] = Ship(shipName);
       }
     }
     return "placed";
@@ -74,20 +77,43 @@ export const gameBoard = () => {
 
   const missedHits = [];
 
-  const receiveAttack = (x, y) => {
-    if (boardArray[x][y] !== "") {
-      boardArray[x][y].hit();
-      areShipSunk();
-      return "hit";
+  const isMoveLegal = (x, y) => {
+    if (board[x][y] === "X") {
+      return false;
     }
-    return missedHits.push([x, y]);
+    return true;
+  };
+
+  const isHitMiss = (x, y) => {
+    if (board[x][y] === "") {
+      missedHits.push([x, y]);
+      board[x][y] = "X";
+      return false;
+    }
+    return true;
+  };
+
+  const receiveAttack = (x, y) => {
+    // It shouldn't attack the same coordinates twice
+    if (!isMoveLegal(x, y)) {
+      return "already attacked";
+    }
+    // It should miss if there are no ships on the coordinates
+    if (!isHitMiss(x, y)) {
+      return "miss";
+    }
+    // It should hit if there is a ship on the coordinates and verify if all ships are sunk
+    board[x][y].hit();
+    board[x][y] = "X";
+    areShipSunk();
+    return "hit";
   };
 
   const showArray = (x, y) => {
     if (x === undefined || y === undefined) {
-      return boardArray;
+      return board;
     }
-    return boardArray[x][y];
+    return board[x][y];
   };
 
   return {
@@ -102,7 +128,5 @@ export const gameBoard = () => {
     areShipSunk,
   };
 };
-
-const player = gameBoard();
 
 export default gameBoard;
