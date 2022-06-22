@@ -1,6 +1,6 @@
-/* eslint-disable no-undef */
+/* eslint-disable */
 import { Ship } from "../modules/ship";
-import { gameBoard } from "../modules/gameboard";
+import { Gameboard } from "../modules/gameboard";
 
 const shipName = { length: 3, name: "testerino" };
 const testShip = Ship(shipName);
@@ -19,7 +19,7 @@ describe("SHIP", () => {
 });
 
 describe("GAMEBOARD", () => {
-  const testBoard = gameBoard();
+  const testBoard = Gameboard();
   test("can place a ship in specific coordinates", () => {
     expect(testBoard.placeShip(shipName, "horizontal", 2, 2)).toBe("placed");
   });
