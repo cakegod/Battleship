@@ -42,6 +42,10 @@ body, html, .container {
   background-color: red;
   transition: 0.2s;
 }
+.cell.miss {
+  background-color: black;
+  transition: 0.2s;
+}
 .cell.ship {
   background-color: skyblue;
 }

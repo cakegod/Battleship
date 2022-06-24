@@ -1,4 +1,6 @@
-/* eslint-disable */
+/* eslint-disable  */
+/* @jest-environment jsdom */
+
 import { Ship } from "../modules/ship";
 import { Gameboard } from "../modules/gameboard";
 

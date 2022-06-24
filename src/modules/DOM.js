@@ -19,13 +19,16 @@ const render = {
   },
 
     // Render the attack on the board
-    attack(x, y, type) {
-      document.querySelector(`${type}>[data-x='${x}'][data-y='${y}']`).classList = "cell hit";
-      console.log();
+    attack(x, y, board) {
+      document.querySelector(`${board}>[data-x='${x}'][data-y='${y}']`).classList = "cell hit";
     },
 
-    ship(x, y, type) {
-      document.querySelector(`${type}>[data-x='${x}'][data-y='${y}']`).classList = "cell ship";
+    attackMiss(x, y, board) {
+      document.querySelector(`${board}>[data-x='${x}'][data-y='${y}']`).classList = "cell miss";
+    },
+
+    ship(x, y, board) {
+      document.querySelector(`${board}>[data-x='${x}'][data-y='${y}']`).classList = "cell ship";
     }
   
 }

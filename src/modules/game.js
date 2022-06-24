@@ -1,40 +1,99 @@
 import { Player } from './player';
 import { Gameboard } from './gameboard';
 import { DOM, render } from './DOM';
-import { Ship } from './ship';
+
+// Phase 1: Players place the ships on the gameboard
+// Players should not be able to attack the enemy board during this phase
+// Human player places the ships using an event listener
+// Computer player places the ships using a random algorithm
+
+// Phase 2: Players take turns attacking each other
+// Players should be able to attack the enemy board during this phase
+// Human player attacks the enemy board using an event listener
+// Computer player attacks the enemy board using a random algorithm
+// This phase should warn when all ships are sunk using the gameboard.areShipSunk() method
 
 export const Game = (() => {
-	const carrier = Ship({ length: 5, name: 'carrier' });
-	const battleship = Ship({ length: 4, name: 'battleship' });
-	const destroyer = Ship({ length: 3, name: 'destroyer' });
-	const submarine = Ship({ length: 3, name: 'submarine' });
-	const patrolBoat = Ship({ length: 2, name: 'patrol boat' });
+	const humanBoard = Gameboard('.human-board', '.computer-board');
+	const computerBoard = Gameboard('.computer-board', '.human-board');
+	const humanPlayer = Player(humanBoard, computerBoard);
+	const computerPlayer = Player(computerBoard, humanBoard);
 
-	// Create players boards
-	const humanBoard = Gameboard("human");
+	// Render the boards
 	render.board(DOM.human);
-	const computerBoard = Gameboard("computer");
 	render.board(DOM.computer);
 
-	// Create players
-	const humanPlayer = Player(computerBoard);
-	const computerPlayer = Player(humanBoard);
+	const phaseTwo = () => {
+		// Human player attacks the enemy board
+		DOM.computer.addEventListener('click', (event) => {
+			// Shouldn't attack the same coordinates twice
+			if (
+				humanPlayer.attack(+event.target.dataset.x, +event.target.dataset.y) ===
+				'already attacked'
+			) {
+				return;
+			}
 
-	// Player turn
-	DOM.computer.addEventListener('click', (event) => {
-		humanPlayer.humanAttack(event.target.dataset.x, event.target.dataset.y);
-	});
-	// Computer turn
-	// computerPlayer.computerAttack();
+			checkWin();
 
-	computerBoard.placeShip(carrier, 'horizontal', 3, 1);
-  computerBoard.placeShip(battleship, 'vertical', 6, 3);
-  computerBoard.placeShip(destroyer, 'horizontal', 5, 9);
-  computerBoard.placeShip(submarine, 'vertical', 2, 3);
-  computerBoard.placeShip(patrolBoat, 'vertical', 9, 4);
-  console.table(computerBoard.showArray());
+			// Computer player attacks the human board
+			computerPlayer.randomAttack();
+		});
+	};
+
+	const checkWin = () => {
+		if (computerBoard.areShipSunk()) {
+			alert('You win!');
+		} else if (humanBoard.areShipSunk()) {
+			alert('You lose!');
+		}
+	};
+
+	let direction = 'horizontal';
+
+	const phaseOne = () => {
+		// Human player places the ships
+		function placeShips(event) {
+			if (
+				humanBoard.placeShip(
+					humanBoard.shipyard[0],
+					direction,
+					+event.target.dataset.x,
+					+event.target.dataset.y,
+				) !== 'placed'
+			) {
+				return 'cannot place the ship here';
+			}
+
+			// Remove placed ship
+			humanBoard.shipyard.shift();
+
+			// Call phase two when ships are all placed
+			if (humanBoard.shipyard.length === 0) {
+				phaseTwo();
+				DOM.human.removeEventListener('click', placeShips);
+			}
+		}
+
+		// Computer player places the ships on the board
+		computerBoard.shipyard.forEach((ship) =>
+			computerPlayer.randomPlaceShip(ship),
+		);
+
+		window.addEventListener('dblclick', () => {
+			if (direction === 'horizontal') {
+				direction = 'vertical';
+				return;
+			}
+			direction = 'horizontal';
+		});
+
+		// Human player places the ships on the board
+		DOM.human.addEventListener('click', placeShips);
+	};
+
+	phaseOne();
 
 	return { computerBoard, humanBoard };
 })();
-
 export default Game;

@@ -4,4 +4,4 @@ import { Ship } from './modules/ship';
 import { Gameboard } from './modules/gameboard';
 import { game } from './modules/game';
 import { DOM } from './modules/DOM';
-import { player } from './modules/player';
+import { Player } from './modules/player';
