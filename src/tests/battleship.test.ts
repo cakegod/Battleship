@@ -4,17 +4,26 @@
 import Gameboard from '../modules/gameboard';
 import Ship from '../modules/ship';
 
+let ship = new Ship('mock', 2);
+let shipTwo = new Ship('mock', 3);
+let gameboard = new Gameboard('human');
+
+beforeEach(() => {
+	ship = new Ship('mock', 2);
+	gameboard = new Gameboard('human');
+});
+
 describe('ship ', () => {
 	it('does not sunk', () => {
-		const ship = new Ship('mock', 2);
 		ship.hit();
 		expect(ship.isSunk()).toBe(false);
 	});
 	it('does sunk', () => {
-		const ship = new Ship('mock', 2);
-		const shipTwo = new Ship('mock', 3);
+		// SHIP ONE
 		ship.hit();
 		ship.hit();
+
+		// SHIP TWO
 		shipTwo.hit();
 		shipTwo.hit();
 		shipTwo.hit();
@@ -22,14 +31,11 @@ describe('ship ', () => {
 		expect(shipTwo.isSunk()).toBe(true);
 	});
 	it('has a length getter', () => {
-		const ship = new Ship('mock', 2);
 		expect(ship.getLength()).toEqual(2);
 	});
 });
 
 describe('gameboard', () => {
-	const gameboard = new Gameboard('human');
-	const ship = new Ship('mock', 2);
 	it('places ships in empty places', () => {
 		expect(gameboard.placeShip(ship, 'horizontal', 3, 4)).toBe(
 			'has been placed',
@@ -48,17 +54,13 @@ describe('gameboard', () => {
 
 	describe('receives attack', () => {
 		it('misses attack', () => {
-			const gameboard = new Gameboard('human');
 			expect(gameboard.receiveAttack(0, 0)).toBe('miss');
 		});
 		it('does not attack already attacked positions', () => {
-			const gameboard = new Gameboard('human');
 			gameboard.receiveAttack(0, 0);
 			expect(gameboard.receiveAttack(0, 0)).toBe('already attacked');
 		});
 		it('and hits ship', () => {
-			const gameboard = new Gameboard('human');
-			const ship = new Ship('mock', 2);
 			gameboard.placeShip(ship, 'horizontal', 0, 0);
 			expect(gameboard.receiveAttack(0, 0)).toBe('hit');
 		});
@@ -66,16 +68,12 @@ describe('gameboard', () => {
 
 	describe('checks sunk', () => {
 		it('true', () => {
-			const ship = new Ship('mock', 2);
-			const gameboard = new Gameboard('human');
 			gameboard.placeShip(ship, 'horizontal', 0, 0);
 			gameboard.receiveAttack(0, 0);
 			gameboard.receiveAttack(1, 0);
 			expect(gameboard.areShipsSunk()).toBe(true);
 		});
 		it('false', () => {
-			const ship = new Ship('mock', 2);
-			const gameboard = new Gameboard('human');
 			gameboard.placeShip(ship, 'horizontal', 0, 0);
 			gameboard.receiveAttack(0, 0);
 			expect(gameboard.areShipsSunk()).toBe(false);
