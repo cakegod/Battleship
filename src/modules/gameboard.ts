@@ -12,12 +12,16 @@ export default class Gameboard {
 		this.player = player;
 	}
 
-	subscribe(topic: string, subscriber: Function) {
+	subscribe(topic: keyof Gameboard, subscriber: Function) {
 		if (!this.#observers[topic]) {
 			this.#observers[topic] = [];
 		}
 
 		this.#observers[topic].push(subscriber);
+	}
+
+	unsubscribe(topic: keyof Gameboard, subscriber: Function) {
+		this.#observers[topic] = this.#observers[topic].filter(func => func !== subscriber)
 	}
 
 	notify(
@@ -27,6 +31,7 @@ export default class Gameboard {
 		type?: 'miss' | 'hit',
 		player?: 'computer' | 'human',
 	) {
+		if (!this.#observers[topic]) return;
 		this.#observers[topic].forEach((sub) => sub(x, y, type, player));
 	}
 
@@ -97,7 +102,6 @@ export default class Gameboard {
 
 		position.hit();
 		this.#board[x][y] = 'x';
-		console.log('called!');
 		this.notify('receiveAttack', x, y, 'hit', this.player);
 		return 'hit';
 	}
