@@ -1,9 +1,9 @@
 export default class Ship {
-	name: string;
+	#name: string;
 	#length: number;
 	#health: number;
 	constructor(name: string, length: number) {
-		this.name = name;
+		this.#name = name;
 		this.#length = length;
 		this.#health = length;
 	}
@@ -23,5 +23,9 @@ export default class Ship {
 
 	getLength() {
 		return this.#length;
+	}
+
+	getName() {
+		return this.#name;
 	}
 }
