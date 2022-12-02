@@ -13,37 +13,40 @@ beforeEach(() => {
 describe('gameboard', () => {
 	describe('can place ship', () => {
 		it('vertically', () => {
-			expect(gameboard.placeShip(ship, 'vertical', 3, 4)).toBe(
-				'has been placed',
-			);
+			expect(gameboard.placeShip(ship, 'vertical', 3, 4)).toEqual({
+				success: true,
+			});
 		});
 		it('horizontally', () => {
-			expect(gameboard.placeShip(ship, 'vertical', 3, 4)).toBe(
-				'has been placed',
-			);
+			expect(gameboard.placeShip(ship, 'vertical', 3, 4)).toEqual({
+				success: true,
+			});
 		});
 		it('in empty places', () => {
-			expect(gameboard.placeShip(ship, 'horizontal', 3, 4)).toBe(
-				'has been placed',
-			);
+			expect(gameboard.placeShip(ship, 'horizontal', 3, 4)).toEqual({
+				success: true,
+			});
 		});
 	});
 
 	describe('cannot place ship', () => {
 		it(`outside board`, () => {
-			expect(gameboard.placeShip(ship, 'horizontal', 9, 4)).toBe(
-				'does not fit board',
-			);
+			expect(gameboard.placeShip(ship, 'horizontal', 9, 4)).toEqual({
+				error: 'does not fit board',
+				success: false,
+			});
 		});
 		it(`in occupied places`, () => {
 			gameboard.placeShip(ship, 'horizontal', 3, 4);
 			gameboard.placeShip(ship, 'vertical', 6, 6);
-			expect(gameboard.placeShip(ship, 'horizontal', 3, 4)).toBe(
-				'place is occupied',
-			);
-			expect(gameboard.placeShip(ship, 'vertical', 6, 6)).toBe(
-				'place is occupied',
-			);
+			expect(gameboard.placeShip(ship, 'horizontal', 3, 4)).toEqual({
+				error: 'place is occupied',
+				success: false,
+			});
+			expect(gameboard.placeShip(ship, 'vertical', 6, 6)).toEqual({
+				error: 'place is occupied',
+				success: false,
+			});
 		});
 	});
 	describe('observers', () => {
