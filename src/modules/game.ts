@@ -13,8 +13,8 @@ export default class Game {
 	constructor() {
 		// RENDER
 		this.#render.renderBoards();
-		this.#render.addPlaceShipListener(this.placeShip);
-		this.#render.addAttackListener(this.humanAttack);
+		this.#render.addEventListener(this.placeShip, this.#render.humanBoard);
+		this.#render.addEventListener(this.humanAttack, this.#render.computerBoard);
 
 		// SUBSCRIBERS
 		this.#playerBoard.subscribe('placeShip', this.#render.renderShip);
@@ -28,9 +28,9 @@ export default class Game {
 	}
 
 	checkWinner(board: Gameboard) {
-		board.areShipsSunk();
-		this.#render.win(board)
-		
+		if (board.areShipsSunk()) {
+			this.#render.win(board);
+		}
 	}
 
 	placeShip = (x: Coordinates, y: Coordinates) => {
@@ -38,6 +38,7 @@ export default class Game {
 	};
 
 	humanAttack = (x: Coordinates, y: Coordinates) => {
+		if (this.#humanPlayer.shipFleet.length !== 0) return;
 		if (this.#humanPlayer.attack(x, y) === 'already attacked') return;
 		this.checkWinner(this.#computerBoard);
 		this.computerAttack();

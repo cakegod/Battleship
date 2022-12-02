@@ -7,7 +7,7 @@ class Player {
 	#enemyBoard: Gameboard;
 	#playerBoard: Gameboard;
 	shipFleet: Ship[];
-	direction: 'horizontal' = "horizontal";
+	direction: 'horizontal' = 'horizontal';
 
 	constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
 		this.#enemyBoard = enemyBoard;
@@ -25,8 +25,6 @@ class Player {
 	}
 
 	placeShip(x: Coordinates, y: Coordinates) {
-		console.log(this);
-		
 		if (this.shipFleet.length === 0) return;
 		const placementResult = this.#playerBoard.placeShip(
 			this.shipFleet[0],
@@ -34,12 +32,14 @@ class Player {
 			x,
 			y,
 		);
-		if (placementResult === 'has been placed') {
+		if (placementResult.success) {
 			this.shipFleet.shift();
-			console.log("test");
-			
+			console.log('test');
+
 			return 'placed';
 		}
+
+		return 'cannot place ship';
 	}
 }
 
