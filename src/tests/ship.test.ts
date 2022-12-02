@@ -13,20 +13,20 @@ beforeEach(() => {
 describe('ship ', () => {
 	describe('can check if', () => {
 		it('is sunk', () => {
-			ship.hit();
-			expect(ship.isSunk()).toBe(false);
+			ship.takeHit();
+			expect(ship.isSunken()).toBe(false);
 		});
 		it('is not sunk', () => {
 			// SHIP ONE
-			ship.hit();
-			ship.hit();
+			ship.takeHit();
+			ship.takeHit();
 
 			// SHIP TWO
-			shipTwo.hit();
-			shipTwo.hit();
-			shipTwo.hit();
-			expect(ship.isSunk()).toBe(true);
-			expect(shipTwo.isSunk()).toBe(true);
+			shipTwo.takeHit();
+			shipTwo.takeHit();
+			shipTwo.takeHit();
+			expect(ship.isSunken()).toBe(true);
+			expect(shipTwo.isSunken()).toBe(true);
 		});
 	});
 
