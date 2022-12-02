@@ -1,5 +1,4 @@
 import Game from './game';
-import Gameboard from './gameboard';
 import { Coordinates } from './types';
 
 export default class Render {
@@ -44,23 +43,11 @@ export default class Render {
 		cell.classList.add('ship');
 	}
 
-	addPlaceShipListener(callback: Game['placeShip']) {
-		this.humanBoard.addEventListener('click', (event) => {
-			if (!(event.target instanceof HTMLElement)) {
-				return;
-			}
-			if (!event.target.classList.contains('cell')) return;
-			const { x } = event.target.dataset;
-			const xCoordinates = Number(x) as Coordinates;
-			const { y } = event.target.dataset;
-			const yCoordinates = Number(y) as Coordinates;
-
-			callback(xCoordinates, yCoordinates);
-		});
-	}
-
-	addAttackListener(callback: Game['humanAttack'] | Game['computerAttack']) {
-		this.computerBoard.addEventListener('click', (event) => {
+	addEventListener(
+		callback: Game['placeShip'] | Game['humanAttack'] | Game['computerAttack'],
+		board: HTMLDivElement,
+	) {
+		board.addEventListener('click', (event) => {
 			if (!(event.target instanceof HTMLElement)) {
 				return;
 			}
