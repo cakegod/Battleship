@@ -1,4 +1,3 @@
-import Game from './game';
 import Gameboard from './gameboard';
 import Ship from './ship';
 import { Coordinates } from './types';
@@ -25,7 +24,7 @@ class Player {
 	}
 
 	placeShip(x: Coordinates, y: Coordinates) {
-		if (this.shipFleet.length === 0) return;
+		if (this.shipFleet.length === 0) return 'no more ships';
 		const placementResult = this.#playerBoard.placeShip(
 			this.shipFleet[0],
 			this.direction,
