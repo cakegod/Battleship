@@ -33,7 +33,6 @@ class Player {
 		);
 		if (placementResult.success) {
 			this.shipFleet.shift();
-			console.log('test');
 
 			return 'placed';
 		}

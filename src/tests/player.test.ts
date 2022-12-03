@@ -49,9 +49,12 @@ describe('player', () => {
 
 describe('computer player', () => {
 	it('can attack randomly', () => {
-		expect(computerPlayer.attack()).toBeTruthy();
+		expect(computerPlayer.attack()).toBe('hit');
 	});
-	it('can place ship', () => {
-		expect(computerPlayer.placeShip());
+	it('can place ships', () => {
+		while (computerPlayer.shipFleet.length !== 0) {
+			computerPlayer.placeShip();
+		}
+		expect(computerPlayer.shipFleet.length).toBe(0);
 	});
 });
