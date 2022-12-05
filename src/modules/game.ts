@@ -3,52 +3,55 @@ import { Player, ComputerPlayer } from './player';
 import Render from './render';
 import { Coordinates } from './types';
 
-export default class Game {
-	#computerBoard = new Gameboard('computer');
-	#playerBoard = new Gameboard('human');
-	#humanPlayer = new Player(this.#computerBoard, this.#playerBoard);
-	#computerPlayer = new ComputerPlayer(this.#playerBoard, this.#computerBoard);
-	#render = new Render();
+const Game = (() => {
+	const computerBoard = new Gameboard('computer');
+	const playerBoard = new Gameboard('human');
+	const humanPlayer = new Player(computerBoard, playerBoard);
+	const computerPlayer = new ComputerPlayer(playerBoard, computerBoard);
 
-	constructor() {
+	const checkWinner = (board: Gameboard) => {
+		if (board.areShipsSunk()) {
+			Render.win(board);
+		}
+	};
+
+	const placeShip = (x: Coordinates, y: Coordinates) => {
+		humanPlayer.placeShip(x, y);
+	};
+
+	const computerAttack = () => {
+		let computerPlay = computerPlayer.attack();
+		while (computerPlay === 'already attacked') {
+			computerPlay = computerPlayer.attack();
+		}
+		checkWinner(playerBoard);
+	};
+
+	const humanAttack = (x: Coordinates, y: Coordinates) => {
+		if (humanPlayer.shipFleet.length !== 0) return;
+		if (humanPlayer.attack(x, y) === 'already attacked') return;
+		checkWinner(computerBoard);
+		computerAttack();
+	};
+
+	const init = () => {
 		// RENDER
-		this.#render.renderBoards();
-		this.#render.addEventListener(this.placeShip, this.#render.humanBoard);
-		this.#render.addEventListener(this.humanAttack, this.#render.computerBoard);
+		Render.renderBoards();
+		Render.addEventListener(placeShip, Render.humanBoard);
+		Render.addEventListener(humanAttack, Render.computerBoard);
 
 		// SUBSCRIBERS
-		this.#playerBoard.subscribe('placeShip', this.#render.renderShip);
-		this.#computerBoard.subscribe('receiveAttack', this.#render.renderAttack);
-		this.#playerBoard.subscribe('receiveAttack', this.#render.renderAttack);
+		playerBoard.subscribe('placeShip', Render.renderShip);
+		computerBoard.subscribe('receiveAttack', Render.renderAttack);
+		playerBoard.subscribe('receiveAttack', Render.renderAttack);
 
 		// COMPUTER PLACE SHIPS
-		while (this.#computerPlayer.shipFleet.length !== 0) {
-			this.#computerPlayer.placeShip();
+		while (computerPlayer.shipFleet.length !== 0) {
+			computerPlayer.placeShip();
 		}
-	}
-
-	checkWinner(board: Gameboard) {
-		if (board.areShipsSunk()) {
-			this.#render.win(board);
-		}
-	}
-
-	placeShip = (x: Coordinates, y: Coordinates) => {
-		this.#humanPlayer.placeShip(x, y);
 	};
 
-	humanAttack = (x: Coordinates, y: Coordinates) => {
-		if (this.#humanPlayer.shipFleet.length !== 0) return;
-		if (this.#humanPlayer.attack(x, y) === 'already attacked') return;
-		this.checkWinner(this.#computerBoard);
-		this.computerAttack();
-	};
+	return { init };
+})();
 
-	computerAttack = () => {
-		let computerPlay = this.#computerPlayer.attack();
-		while (computerPlay === 'already attacked') {
-			computerPlay = this.#computerPlayer.attack();
-		}
-		this.checkWinner(this.#playerBoard);
-	};
-}
+export default Game;
