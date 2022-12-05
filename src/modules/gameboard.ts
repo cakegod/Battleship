@@ -1,18 +1,24 @@
+import Render from './render';
 import Ship from './ship';
 import { Coordinates, Direction } from './types';
+
+type Subscriber = typeof Render['renderAttack' | 'renderShip'];
 
 export default class Gameboard {
 	#board: Ship[][] | ''[][] | 'x'[][] = Array(10)
 		.fill('')
-		.map((_) => Array(10).fill(''));
+		.map(() => Array(10).fill(''));
 	#placedShips: Ship[] = [];
-	#observers: { [key: string]: Function[] } = {};
+	#observers: {
+		[key: string]: Subscriber[];
+	} = {};
 	player: 'computer' | 'human';
+
 	constructor(player: 'computer' | 'human') {
 		this.player = player;
 	}
 
-	subscribe(topic: string, subscriber: Function) {
+	subscribe(topic: keyof Gameboard, subscriber: Subscriber) {
 		if (!this.#observers[topic]) {
 			this.#observers[topic] = [];
 		}
@@ -20,89 +26,103 @@ export default class Gameboard {
 		this.#observers[topic].push(subscriber);
 	}
 
+	unsubscribe(topic: keyof Gameboard, subscriber: Subscriber) {
+		this.#observers[topic] = this.#observers[topic].filter(
+			(func) => func !== subscriber,
+		);
+	}
+
 	notify(
-		topic: string,
+		topic: keyof Gameboard,
 		x: Coordinates,
 		y: Coordinates,
-		type?: 'miss' | 'hit',
-		player?: 'computer' | 'human',
+		type: 'miss' | 'hit' = "hit",
+		player: 'computer' | 'human' = this.player,
 	) {
+		if (!this.#observers[topic]) return;
 		this.#observers[topic].forEach((sub) => sub(x, y, type, player));
 	}
 
 	placeShip(ship: Ship, direction: Direction, x: Coordinates, y: Coordinates) {
-		const length = ship.getLength();
+		const shipLength = ship.getLength();
 
-		function canFit() {
-			if (direction === 'horizontal') {
-				return x <= 10 - length;
-			} else if (direction === 'vertical') {
-				return y <= 10 - length;
-			}
+		// Check if the ship can fit on the gameboard at the specified position
+		if (!Gameboard.#canFitOnBoard(direction, x, y, shipLength)) {
+			return { success: false, error: 'does not fit board' };
 		}
 
-		function isPlaceEmpty(board: Ship[][] | string[][]) {
-			if (direction === 'horizontal') {
-				for (let i = x; i <= x + length - 1; i += 1) {
-					if (board[i][y] !== '') {
-						return false;
-					}
-				}
-			} else if (direction === 'vertical') {
-				for (let i = y; i <= y + length - 1; i += 1) {
-					if (board[x][i] !== '') {
-						return false;
-					}
-				}
-			}
-			return true;
+		// Check if the positions on the gameboard are empty
+		if (
+			!Gameboard.#arePositionsEmpty(direction, x, y, shipLength, this.#board)
+		) {
+			return { success: false, error: 'place is occupied' };
 		}
 
-		// Checks
-		if (!canFit()) {
-			return 'does not fit board';
-		}
-		if (!isPlaceEmpty(this.#board)) {
-			return 'place is occupied';
-		}
-
-		// Places ships
+		// Place the ship on the gameboard and notify subscribed observers
 		this.#placedShips.push(ship);
+		for (let i = 0; i < shipLength; i += 1) {
+			const row = (direction === 'horizontal' ? x + i : x) as Coordinates;
+			const col = (direction === 'horizontal' ? y : y + i) as Coordinates;
+			this.#board[row][col] = ship;
+			this.#observers.placeShip && this.notify('placeShip', row, col);
+		}
 
-		if (direction === 'horizontal') {
-			for (let i = x; i <= x + length - 1; i += 1) {
-				this.#board[i][y] = ship;
-				this.#observers['placeShip'] && this.notify('placeShip', i, y);
-			}
-		} else if (direction === 'vertical') {
-			for (let i = y; i <= y + length - 1; i += 1) {
-				this.#board[x][i] = ship;
-				this.#observers['placeShip'] && this.notify('placeShip', x, i);
+		return { success: true };
+	}
+
+	static #canFitOnBoard(
+		direction: Direction,
+		x: Coordinates,
+		y: Coordinates,
+		shipLength: number,
+	) {
+		return (
+			(direction === 'horizontal' && x <= 10 - shipLength) ||
+			(direction === 'vertical' && y <= 10 - shipLength)
+		);
+	}
+
+	static #arePositionsEmpty(
+		direction: Direction,
+		x: Coordinates,
+		y: Coordinates,
+		shipLength: number,
+		board: Ship[][] | ''[][] | 'x'[][],
+	) {
+		// Loop through each position on the gameboard where the ship will be placed
+		for (let i = 0; i < shipLength; i += 1) {
+			// Calculate the row and column of the current position
+			const row = direction === 'horizontal' ? x + i : x;
+			const col = direction === 'horizontal' ? y : y + i;
+
+			// Check if the position is empty
+			if (board[row][col] !== '') {
+				return false;
 			}
 		}
 
-		return 'has been placed';
+		return true;
 	}
 
 	receiveAttack(x: Coordinates, y: Coordinates) {
 		const position = this.#board[x][y];
 
-		if (position === 'x') {
-			return 'already attacked';
-		} else if (position === '') {
-			this.#board[x][y] = 'x';
-			this.notify('receiveAttack', x, y, 'miss', this.player);
-			return 'miss';
+		switch (position) {
+			case 'x':
+				return 'already attacked';
+			case '':
+				this.#board[x][y] = 'x';
+				this.notify('receiveAttack', x, y, 'miss', this.player);
+				return 'miss';
+			default:
+				position.takeHit();
+				this.#board[x][y] = 'x';
+				this.notify('receiveAttack', x, y, 'hit', this.player);
+				return 'hit';
 		}
-
-		position.hit();
-		this.#board[x][y] = 'x';
-		console.log('called!');
-		this.notify('receiveAttack', x, y, 'hit', this.player);
-		return 'hit';
 	}
 
 	areShipsSunk() {
-		return this.#placedShips.every((ship) => ship.isSunk());
+		return this.#placedShips.every((ship) => ship.isSunken());
 	}
 }

@@ -1,4 +1,4 @@
-import Game from './game';
+// eslint-disable-next-line max-classes-per-file
 import Gameboard from './gameboard';
 import Ship from './ship';
 import { Coordinates } from './types';
@@ -7,7 +7,7 @@ class Player {
 	#enemyBoard: Gameboard;
 	#playerBoard: Gameboard;
 	shipFleet: Ship[];
-	direction: 'horizontal' = "horizontal";
+	direction: 'horizontal' | 'vertical' = 'horizontal';
 
 	constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
 		this.#enemyBoard = enemyBoard;
@@ -25,41 +25,39 @@ class Player {
 	}
 
 	placeShip(x: Coordinates, y: Coordinates) {
-		console.log(this);
-		
-		if (this.shipFleet.length === 0) return;
+		if (this.shipFleet.length === 0) return 'no more ships';
 		const placementResult = this.#playerBoard.placeShip(
 			this.shipFleet[0],
 			this.direction,
 			x,
 			y,
 		);
-		if (placementResult === 'has been placed') {
+		if (placementResult.success) {
 			this.shipFleet.shift();
-			console.log("test");
-			
+
 			return 'placed';
 		}
+
+		return 'cannot place ship';
 	}
 }
 
 class ComputerPlayer extends Player {
-	constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
-		super(enemyBoard, playerBoard);
-	}
-
-	#randomCoordinates() {
+	static #randomCoordinates() {
 		return Math.floor(Math.random() * 10) as Coordinates;
 	}
 
 	attack() {
-		return super.attack(this.#randomCoordinates(), this.#randomCoordinates());
+		return super.attack(
+			ComputerPlayer.#randomCoordinates(),
+			ComputerPlayer.#randomCoordinates(),
+		);
 	}
 
 	placeShip() {
 		return super.placeShip(
-			this.#randomCoordinates(),
-			this.#randomCoordinates(),
+			ComputerPlayer.#randomCoordinates(),
+			ComputerPlayer.#randomCoordinates(),
 		);
 	}
 }
