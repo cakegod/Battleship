@@ -13,7 +13,7 @@ export default class Ship {
 
 	takeHit() {
 		if (this.#health !== 0) {
-			this.#health--;
+			this.#health -= 1;
 		}
 	}
 
