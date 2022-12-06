@@ -40,26 +40,43 @@ class Player {
 
 		return 'cannot place ship';
 	}
-}
-
-class ComputerPlayer extends Player {
-	static #randomCoordinates() {
-		return Math.floor(Math.random() * 10) as Coordinates;
-	}
-
-	attack() {
-		return super.attack(
-			ComputerPlayer.#randomCoordinates(),
-			ComputerPlayer.#randomCoordinates(),
-		);
-	}
-
-	placeShip() {
-		return super.placeShip(
-			ComputerPlayer.#randomCoordinates(),
-			ComputerPlayer.#randomCoordinates(),
-		);
+	getShipFleet() {
+		return this.shipFleet
 	}
 }
+
+class ComputerPlayer {
+  static #randomCoordinates() {
+    return Math.floor(Math.random() * 10) as Coordinates;
+  }
+
+  #player: Player;
+
+  constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
+    this.#player = new Player(enemyBoard, playerBoard);
+  }
+
+  attack() {
+    return this.#player.attack(
+      ComputerPlayer.#randomCoordinates(),
+      ComputerPlayer.#randomCoordinates(),
+    );
+  }
+
+  placeShip() {
+    return this.#player.placeShip(
+      ComputerPlayer.#randomCoordinates(),
+      ComputerPlayer.#randomCoordinates(),
+    );
+  }
+
+	getShipFleet() {
+		return this.#player.getShipFleet()
+	}
+}
+
+
+
+
 
 export { Player, ComputerPlayer };
