@@ -28,7 +28,7 @@ const Game = (() => {
 	};
 
 	const humanAttack = (x: Coordinates, y: Coordinates) => {
-		if (humanPlayer.shipFleet.length !== 0) return;
+		if (humanPlayer.getShipFleet().length !== 0) return;
 		if (humanPlayer.attack(x, y) === 'already attacked') return;
 		checkWinner(computerBoard);
 		computerAttack();
@@ -46,7 +46,7 @@ const Game = (() => {
 		playerBoard.subscribe('receiveAttack', Render.renderAttack);
 
 		// COMPUTER PLACE SHIPS
-		while (computerPlayer.shipFleet.length !== 0) {
+		while (computerPlayer.getShipFleet().length !== 0) {
 			computerPlayer.placeShip();
 		}
 	};
