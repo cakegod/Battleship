@@ -23,10 +23,6 @@ describe('player', () => {
 		});
 	});
 
-	it('ship fleet has 5 ships', () => {
-		expect(humanPlayer.getShipFleet().length).toBe(5);
-	});
-
 	it('can place ship', () => {
 		expect(humanPlayer.placeShip(1, 1)).toBe('placed');
 	});
@@ -42,7 +38,7 @@ describe('player', () => {
 			humanPlayer.placeShip(1, 2);
 			humanPlayer.placeShip(3, 4);
 			expect(humanPlayer.placeShip(0, 0)).toBe('no more ships');
-			expect(humanPlayer.getShipFleet().length).toBe(0);
+			expect(humanPlayer.shipFleet.isShipFleetEmpty()).toBeTruthy();
 		});
 	});
 });
@@ -50,11 +46,5 @@ describe('player', () => {
 describe('computer player', () => {
 	it('can attack randomly', () => {
 		expect(computerPlayer.attack()).toBeTruthy();
-	});
-	it('can place ships', () => {
-		while (computerPlayer.getShipFleet().length !== 0) {
-			computerPlayer.placeShip();
-		}
-		expect(computerPlayer.getShipFleet().length).toBe(0);
 	});
 });

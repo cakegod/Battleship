@@ -43,7 +43,7 @@ const Game = (() => {
 		PubSub.subscribe('receiveAttack', Render.renderAttack);
 
 		// COMPUTER PLACE SHIPS
-		computerPlayer.placeShip();
+		computerPlayer.placeAllShips();
 	};
 
 	return { init };

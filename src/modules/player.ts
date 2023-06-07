@@ -3,48 +3,65 @@ import Gameboard from './gameboard';
 import Ship from './ship';
 import { Coordinates, Direction } from './types';
 
+class ShipFleet {
+	fleet = [
+		new Ship('carrier', 5),
+		new Ship('battleship', 4),
+		new Ship('destroyer', 3),
+		new Ship('submarine', 3),
+		new Ship('patrol boat', 2),
+	];
+
+	isShipFleetEmpty() {
+		return this.fleet.length === 0;
+	}
+
+	takeOneShip() {
+		if (this.isShipFleetEmpty()) {
+			return false;
+		}
+
+		this.fleet.shift();
+		return this.fleet[0];
+	}
+}
+
 class HumanPlayer {
 	#enemyBoard: Gameboard;
 	#playerBoard: Gameboard;
-	shipFleet: Ship[];
+	shipFleet: ShipFleet;
 	direction: Direction = 'horizontal';
 
 	constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
 		this.#enemyBoard = enemyBoard;
 		this.#playerBoard = playerBoard;
-		this.shipFleet = [
-			new Ship('carrier', 5),
-			new Ship('battleship', 4),
-			new Ship('destroyer', 3),
-			new Ship('submarine', 3),
-			new Ship('patrol boat', 2),
-		];
+		this.shipFleet = new ShipFleet();
 	}
+
 	attack(x: Coordinates, y: Coordinates) {
 		const hasAlreadyAttackCoordinate =
 			this.#enemyBoard.receiveAttack(x, y) === 'already attacked';
-		const isShipFleetEmpty = this.shipFleet.length === 0;
+		const isShipFleetEmpty = this.shipFleet.isShipFleetEmpty();
+
 		return !hasAlreadyAttackCoordinate && !isShipFleetEmpty;
 	}
 
 	placeShip(x: Coordinates, y: Coordinates) {
-		if (this.shipFleet.length === 0) return 'no more ships';
+		const ship = this.shipFleet.takeOneShip();
+		if (!ship) return 'no more ships';
+
 		const placementResult = this.#playerBoard.placeShip(
-			this.shipFleet[0],
+			ship,
 			this.direction,
 			x,
 			y,
 		);
-		if (placementResult.success) {
-			this.shipFleet.shift();
 
+		if (placementResult.success) {
 			return 'placed';
 		}
 
 		return 'cannot place ship';
-	}
-	getShipFleet() {
-		return this.shipFleet;
 	}
 }
 
@@ -73,17 +90,13 @@ class ComputerPlayer {
 		return computerPlay;
 	}
 
-	placeShip() {
-		while (this.#player.getShipFleet().length !== 0) {
+	placeAllShips() {
+		while (!this.#player.shipFleet.isShipFleetEmpty()) {
 			this.#player.placeShip(
 				ComputerPlayer.#randomCoordinates(),
 				ComputerPlayer.#randomCoordinates(),
 			);
 		}
-	}
-
-	getShipFleet() {
-		return this.#player.getShipFleet();
 	}
 }
 
