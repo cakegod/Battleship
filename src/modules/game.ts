@@ -1,17 +1,17 @@
 import Gameboard from './gameboard';
-import { Player, ComputerPlayer } from './player';
+import { HumanPlayer, ComputerPlayer } from './player';
 import Render from './render';
-import { Coordinates } from './types';
+import { Coordinates, Player } from './types';
 
 const Game = (() => {
 	const computerBoard = new Gameboard('computer');
 	const playerBoard = new Gameboard('human');
-	const humanPlayer = new Player(computerBoard, playerBoard);
+	const humanPlayer = new HumanPlayer(computerBoard, playerBoard);
 	const computerPlayer = new ComputerPlayer(playerBoard, computerBoard);
 
-	const checkWinner = (board: Gameboard) => {
+	const checkWinner = (board: Gameboard, enemyPlayer: Player) => {
 		if (board.areShipsSunk()) {
-			Render.win(board);
+			Render.win(enemyPlayer);
 		}
 	};
 
@@ -20,18 +20,14 @@ const Game = (() => {
 	};
 
 	const computerAttack = () => {
-		let computerPlay = computerPlayer.attack();
-		while (computerPlay === 'already attacked') {
-			computerPlay = computerPlayer.attack();
-		}
-		checkWinner(playerBoard);
+		computerPlayer.attack();
+		checkWinner(playerBoard, 'computer');
 	};
 
 	const humanAttack = (x: Coordinates, y: Coordinates) => {
-		if (humanPlayer.getShipFleet().length !== 0) return;
-		if (humanPlayer.attack(x, y) === 'already attacked') return;
-		checkWinner(computerBoard);
+		if (!humanPlayer.attack(x, y)) return;
 		computerAttack();
+		checkWinner(computerBoard, 'computer');
 	};
 
 	const init = () => {
@@ -46,9 +42,7 @@ const Game = (() => {
 		playerBoard.subscribe('receiveAttack', Render.renderAttack);
 
 		// COMPUTER PLACE SHIPS
-		while (computerPlayer.getShipFleet().length !== 0) {
-			computerPlayer.placeShip();
-		}
+		computerPlayer.placeShip();
 	};
 
 	return { init };

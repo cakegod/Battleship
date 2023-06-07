@@ -1,8 +1,8 @@
 import Render from './render';
 import Ship from './ship';
-import { Coordinates, Direction } from './types';
+import { Coordinates, Direction, Player, ValidAttack } from './types';
 
-type Subscriber = typeof Render['renderAttack' | 'renderShip'];
+type Subscriber = (typeof Render)['renderAttack' | 'renderShip'];
 
 export default class Gameboard {
 	#board: Ship[][] | ''[][] | 'x'[][] = Array(10)
@@ -12,9 +12,9 @@ export default class Gameboard {
 	#observers: {
 		[key: string]: Subscriber[];
 	} = {};
-	player: 'computer' | 'human';
+	player: Player;
 
-	constructor(player: 'computer' | 'human') {
+	constructor(player: Player) {
 		this.player = player;
 	}
 
@@ -36,8 +36,8 @@ export default class Gameboard {
 		topic: keyof Gameboard,
 		x: Coordinates,
 		y: Coordinates,
-		type: 'miss' | 'hit' = "hit",
-		player: 'computer' | 'human' = this.player,
+		type: ValidAttack = 'hit',
+		player: Player = this.player,
 	) {
 		if (!this.#observers[topic]) return;
 		this.#observers[topic].forEach((sub) => sub(x, y, type, player));

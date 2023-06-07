@@ -1,4 +1,4 @@
-import { Coordinates } from './types';
+import { Coordinates, Player, ValidAttack } from './types';
 
 const Render = (() => {
 	const container = document.querySelector('.container') as HTMLDivElement;
@@ -27,8 +27,8 @@ const Render = (() => {
 	const renderAttack = (
 		x: Coordinates,
 		y: Coordinates,
-		type: 'miss' | 'hit',
-		player: 'human' | 'computer',
+		type: ValidAttack,
+		player: Player,
 	) => {
 		const cell = document.querySelector(
 			`.${player}-board>[data-x='${x}'][data-y='${y}']`,
@@ -62,7 +62,7 @@ const Render = (() => {
 		});
 	};
 
-	const win = ({ player }: { player: 'human' | 'computer' }) => {
+	const win = (player: Player) => {
 		const text = document.createElement('p');
 		text.textContent = `${player} WINS!`;
 		container.append(text);

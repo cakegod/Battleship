@@ -1,13 +1,13 @@
 // eslint-disable-next-line max-classes-per-file
 import Gameboard from './gameboard';
 import Ship from './ship';
-import { Coordinates } from './types';
+import { Coordinates, Direction } from './types';
 
-class Player {
+class HumanPlayer {
 	#enemyBoard: Gameboard;
 	#playerBoard: Gameboard;
 	shipFleet: Ship[];
-	direction: 'horizontal' | 'vertical' = 'horizontal';
+	direction: Direction = 'horizontal';
 
 	constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
 		this.#enemyBoard = enemyBoard;
@@ -21,7 +21,10 @@ class Player {
 		];
 	}
 	attack(x: Coordinates, y: Coordinates) {
-		return this.#enemyBoard.receiveAttack(x, y);
+		const hasAlreadyAttackCoordinate =
+			this.#enemyBoard.receiveAttack(x, y) === 'already attacked';
+		const isShipFleetEmpty = this.shipFleet.length === 0;
+		return !hasAlreadyAttackCoordinate && !isShipFleetEmpty;
 	}
 
 	placeShip(x: Coordinates, y: Coordinates) {
@@ -41,42 +44,47 @@ class Player {
 		return 'cannot place ship';
 	}
 	getShipFleet() {
-		return this.shipFleet
+		return this.shipFleet;
 	}
 }
 
 class ComputerPlayer {
-  static #randomCoordinates() {
-    return Math.floor(Math.random() * 10) as Coordinates;
-  }
+	static #randomCoordinates() {
+		return Math.floor(Math.random() * 10) as Coordinates;
+	}
 
-  #player: Player;
+	#player: HumanPlayer;
 
-  constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
-    this.#player = new Player(enemyBoard, playerBoard);
-  }
+	constructor(enemyBoard: Gameboard, playerBoard: Gameboard) {
+		this.#player = new HumanPlayer(enemyBoard, playerBoard);
+	}
 
-  attack() {
-    return this.#player.attack(
-      ComputerPlayer.#randomCoordinates(),
-      ComputerPlayer.#randomCoordinates(),
-    );
-  }
+	attack() {
+		let computerPlay = this.#player.attack(
+			ComputerPlayer.#randomCoordinates(),
+			ComputerPlayer.#randomCoordinates(),
+		);
+		while (!computerPlay) {
+			computerPlay = this.#player.attack(
+				ComputerPlayer.#randomCoordinates(),
+				ComputerPlayer.#randomCoordinates(),
+			);
+		}
+		return computerPlay;
+	}
 
-  placeShip() {
-    return this.#player.placeShip(
-      ComputerPlayer.#randomCoordinates(),
-      ComputerPlayer.#randomCoordinates(),
-    );
-  }
+	placeShip() {
+		while (this.#player.getShipFleet().length !== 0) {
+			this.#player.placeShip(
+				ComputerPlayer.#randomCoordinates(),
+				ComputerPlayer.#randomCoordinates(),
+			);
+		}
+	}
 
 	getShipFleet() {
-		return this.#player.getShipFleet()
+		return this.#player.getShipFleet();
 	}
 }
 
-
-
-
-
-export { Player, ComputerPlayer };
+export { HumanPlayer, ComputerPlayer };

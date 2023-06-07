@@ -1,10 +1,10 @@
 import Gameboard from '../modules/gameboard';
-import { Player, ComputerPlayer } from '../modules/player';
+import { HumanPlayer, ComputerPlayer } from '../modules/player';
 import Ship from '../modules/ship';
 
 const computerBoard = new Gameboard('computer');
 const playerBoard = new Gameboard('human');
-const humanPlayer = new Player(computerBoard, playerBoard);
+const humanPlayer = new HumanPlayer(computerBoard, playerBoard);
 const computerPlayer = new ComputerPlayer(playerBoard, computerBoard);
 
 describe('player', () => {
@@ -13,13 +13,13 @@ describe('player', () => {
 		computerBoard.placeShip(ship, 'horizontal', 0, 0);
 
 		it('and hit ship', () => {
-			expect(humanPlayer.attack(0, 0)).toBe('hit');
+			expect(humanPlayer.attack(0, 0)).toBe(true);
 		});
 		it('and miss attack', () => {
-			expect(humanPlayer.attack(0, 3)).toBe('miss');
+			expect(humanPlayer.attack(0, 3)).toBe(true);
 		});
 		it('and not attack already attacked position', () => {
-			expect(humanPlayer.attack(0, 3)).toBe('already attacked');
+			expect(humanPlayer.attack(0, 3)).toBe(false);
 		});
 	});
 
