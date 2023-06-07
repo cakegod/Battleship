@@ -49,29 +49,6 @@ describe('gameboard', () => {
 			});
 		});
 	});
-	describe('observers', () => {
-		it('are notified when they exist', () => {
-			const func = jest.fn();
-			gameboard.subscribe('placeShip', func);
-			gameboard.placeShip(ship, 'horizontal', 2, 2);
-			gameboard.placeShip(ship, 'vertical', 7, 7);
-			expect(func).toHaveBeenCalled();
-		});
-		it("are not notified when they don't exist", () => {
-			const func = jest.fn();
-			gameboard.placeShip(ship, 'horizontal', 2, 2);
-			gameboard.placeShip(ship, 'vertical', 7, 7);
-			expect(func).not.toHaveBeenCalled();
-		});
-		it('can be unsubscribed', () => {
-			const func = jest.fn();
-			gameboard.subscribe('placeShip', func);
-			gameboard.notify('placeShip', 1, 1);
-			gameboard.unsubscribe('placeShip', func);
-			gameboard.subscribe('placeShip', func);
-			expect(func).not.toHaveBeenCalledTimes(2);
-		});
-	});
 
 	describe('can receive attack', () => {
 		it('and miss attack', () => {

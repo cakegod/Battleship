@@ -1,8 +1,13 @@
+import { PubSub } from './PubSub';
 import Render from './render';
 import Ship from './ship';
-import { Coordinates, Direction, Player, ValidAttack } from './types';
-
-type Subscriber = (typeof Render)['renderAttack' | 'renderShip'];
+import {
+	Coordinates,
+	Direction,
+	Player,
+	Subscriber,
+	ValidAttack,
+} from './types';
 
 export default class Gameboard {
 	#board: Ship[][] | ''[][] | 'x'[][] = Array(10)
@@ -18,30 +23,23 @@ export default class Gameboard {
 		this.player = player;
 	}
 
-	subscribe(topic: keyof Gameboard, subscriber: Subscriber) {
-		if (!this.#observers[topic]) {
-			this.#observers[topic] = [];
-		}
-
-		this.#observers[topic].push(subscriber);
-	}
-
-	unsubscribe(topic: keyof Gameboard, subscriber: Subscriber) {
-		this.#observers[topic] = this.#observers[topic].filter(
-			(func) => func !== subscriber,
-		);
-	}
-
-	notify(
-		topic: keyof Gameboard,
-		x: Coordinates,
-		y: Coordinates,
-		type: ValidAttack = 'hit',
-		player: Player = this.player,
-	) {
-		if (!this.#observers[topic]) return;
-		this.#observers[topic].forEach((sub) => sub(x, y, type, player));
-	}
+	// notify(
+	// 	topic: keyof Gameboard,
+	// 	{
+	// 		x,
+	// 		y,
+	// 		type = 'hit',
+	// 		player = this.player,
+	// 	}: {
+	// 		x: Coordinates;
+	// 		y: Coordinates;
+	// 		type?: ValidAttack;
+	// 		player?: Player;
+	// 	},
+	// ) {
+	// 	if (!this.#observers[topic]) return;
+	// 	this.#observers[topic].forEach((sub) => sub({ x, y, type, player }));
+	// }
 
 	placeShip(ship: Ship, direction: Direction, x: Coordinates, y: Coordinates) {
 		const shipLength = ship.getLength();
@@ -64,7 +62,11 @@ export default class Gameboard {
 			const row = (direction === 'horizontal' ? x + i : x) as Coordinates;
 			const col = (direction === 'horizontal' ? y : y + i) as Coordinates;
 			this.#board[row][col] = ship;
-			this.#observers.placeShip && this.notify('placeShip', row, col);
+			this.#observers.placeShip &&
+				PubSub.notify('placeShip', {
+					x: row,
+					y: row,
+				});
 		}
 
 		return { success: true };
@@ -112,12 +114,22 @@ export default class Gameboard {
 				return 'already attacked';
 			case '':
 				this.#board[x][y] = 'x';
-				this.notify('receiveAttack', x, y, 'miss', this.player);
+				PubSub.notify('receiveAttack', {
+					x,
+					y,
+					type: 'miss',
+					player: this.player,
+				});
 				return 'miss';
 			default:
 				position.takeHit();
 				this.#board[x][y] = 'x';
-				this.notify('receiveAttack', x, y, 'hit', this.player);
+				PubSub.notify('receiveAttack', {
+					x,
+					y,
+					type: 'hit',
+					player: this.player,
+				});
 				return 'hit';
 		}
 	}

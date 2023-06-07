@@ -24,12 +24,17 @@ const Render = (() => {
 		renderBoard(humanBoard);
 	};
 
-	const renderAttack = (
-		x: Coordinates,
-		y: Coordinates,
-		type: ValidAttack,
-		player: Player,
-	) => {
+	const renderAttack = ({
+		x,
+		y,
+		type,
+		player,
+	}: {
+		x: Coordinates;
+		y: Coordinates;
+		type: ValidAttack;
+		player: Player;
+	}) => {
 		const cell = document.querySelector(
 			`.${player}-board>[data-x='${x}'][data-y='${y}']`,
 		) as HTMLDivElement;
@@ -37,7 +42,7 @@ const Render = (() => {
 		cell.classList.add(type === 'miss' ? 'miss' : 'hit');
 	};
 
-	const renderShip = (x: Coordinates, y: Coordinates) => {
+	const renderShip = ({ x, y }: { x: Coordinates; y: Coordinates }) => {
 		const cell = document.querySelector(
 			`.human-board>[data-x='${x}'][data-y='${y}']`,
 		) as HTMLDivElement;

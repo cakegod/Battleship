@@ -1,3 +1,4 @@
+import { PubSub } from './PubSub';
 import Gameboard from './gameboard';
 import { HumanPlayer, ComputerPlayer } from './player';
 import Render from './render';
@@ -37,9 +38,9 @@ const Game = (() => {
 		Render.addEventListener(humanAttack, Render.computerBoard);
 
 		// SUBSCRIBERS
-		playerBoard.subscribe('placeShip', Render.renderShip);
-		computerBoard.subscribe('receiveAttack', Render.renderAttack);
-		playerBoard.subscribe('receiveAttack', Render.renderAttack);
+		PubSub.subscribe('placeShip', Render.renderShip);
+		PubSub.subscribe('receiveAttack', Render.renderAttack);
+		PubSub.subscribe('receiveAttack', Render.renderAttack);
 
 		// COMPUTER PLACE SHIPS
 		computerPlayer.placeShip();
