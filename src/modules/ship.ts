@@ -1,11 +1,11 @@
-type Length = 2 | 3 | 4 | 5;
+import { ShipLength } from './types';
 
 export default class Ship {
 	#name: string;
-	#length: Length;
-	#health: 0 | 1 | Length;
+	#length: ShipLength;
+	#health: 0 | 1 | ShipLength;
 
-	constructor(name: string, length: Length) {
+	constructor(name: string, length: ShipLength) {
 		this.#name = name;
 		this.#length = length;
 		this.#health = length;

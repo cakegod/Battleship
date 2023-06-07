@@ -1,7 +1,7 @@
-import { PubSub } from './PubSub';
-import Render from './render';
+import { PubSub } from './pubSub';
 import Ship from './ship';
 import {
+	Board,
 	Coordinates,
 	Direction,
 	Player,
@@ -10,37 +10,15 @@ import {
 } from './types';
 
 export default class Gameboard {
-	#board: Ship[][] | ''[][] | 'x'[][] = Array(10)
+	#board: Board = Array(10)
 		.fill('')
 		.map(() => Array(10).fill(''));
 	#placedShips: Ship[] = [];
-	#observers: {
-		[key: string]: Subscriber[];
-	} = {};
 	player: Player;
 
 	constructor(player: Player) {
 		this.player = player;
 	}
-
-	// notify(
-	// 	topic: keyof Gameboard,
-	// 	{
-	// 		x,
-	// 		y,
-	// 		type = 'hit',
-	// 		player = this.player,
-	// 	}: {
-	// 		x: Coordinates;
-	// 		y: Coordinates;
-	// 		type?: ValidAttack;
-	// 		player?: Player;
-	// 	},
-	// ) {
-	// 	if (!this.#observers[topic]) return;
-	// 	this.#observers[topic].forEach((sub) => sub({ x, y, type, player }));
-	// }
-
 	placeShip(ship: Ship, direction: Direction, x: Coordinates, y: Coordinates) {
 		const shipLength = ship.getLength();
 
@@ -62,7 +40,7 @@ export default class Gameboard {
 			const row = (direction === 'horizontal' ? x + i : x) as Coordinates;
 			const col = (direction === 'horizontal' ? y : y + i) as Coordinates;
 			this.#board[row][col] = ship;
-			this.#observers.placeShip &&
+			PubSub.hasSubscriber('placeShip') &&
 				PubSub.notify('placeShip', {
 					x: row,
 					y: row,
@@ -89,7 +67,7 @@ export default class Gameboard {
 		x: Coordinates,
 		y: Coordinates,
 		shipLength: number,
-		board: Ship[][] | ''[][] | 'x'[][],
+		board: Board,
 	) {
 		// Loop through each position on the gameboard where the ship will be placed
 		for (let i = 0; i < shipLength; i += 1) {
@@ -109,27 +87,27 @@ export default class Gameboard {
 	receiveAttack(x: Coordinates, y: Coordinates) {
 		const position = this.#board[x][y];
 
+		const notifyReceiveAttack = (type: ValidAttack) =>
+			PubSub.notify('receiveAttack', {
+				x,
+				y,
+				type,
+				player: this.player,
+			});
+
+		const markBoard = () => (this.#board[x][y] = 'x');
+
 		switch (position) {
 			case 'x':
 				return 'already attacked';
 			case '':
-				this.#board[x][y] = 'x';
-				PubSub.notify('receiveAttack', {
-					x,
-					y,
-					type: 'miss',
-					player: this.player,
-				});
+				markBoard();
+				notifyReceiveAttack('miss');
 				return 'miss';
 			default:
 				position.takeHit();
-				this.#board[x][y] = 'x';
-				PubSub.notify('receiveAttack', {
-					x,
-					y,
-					type: 'hit',
-					player: this.player,
-				});
+				markBoard();
+				notifyReceiveAttack('hit');
 				return 'hit';
 		}
 	}

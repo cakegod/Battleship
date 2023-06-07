@@ -1,4 +1,4 @@
-import { PubSub } from './PubSub';
+import { PubSub } from './pubSub';
 import Gameboard from './gameboard';
 import { HumanPlayer, ComputerPlayer } from './player';
 import Render from './render';
