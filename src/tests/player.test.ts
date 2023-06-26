@@ -9,7 +9,7 @@ const computerPlayer = new ComputerPlayer(playerBoard, computerBoard);
 
 describe('player', () => {
 	describe('can attack', () => {
-		let ship = new Ship('mock', 2);
+		const ship = new Ship('mock', 2);
 		computerBoard.placeShip(ship, 'horizontal', 0, 0);
 
 		it('and hit ship', () => {

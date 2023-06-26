@@ -2,7 +2,7 @@ import Gameboard from '../modules/gameboard';
 import Ship from '../modules/ship';
 
 let ship = new Ship('mock', 2);
-let shipTwo = new Ship('mock', 3);
+const shipTwo = new Ship('mock', 3);
 let gameboard = new Gameboard('human');
 
 beforeEach(() => {
